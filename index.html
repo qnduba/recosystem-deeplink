@@ -4,45 +4,87 @@
     <title>RECO-System - Download App</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script type="text/javascript">
-        // Extract the URL parameters
-        var urlParams = new URLSearchParams(window.location.search);
-        var productId = urlParams.get('id');
-        var username = urlParams.get('user');
-        
-        // Check if this is a mobile device
-        var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-        
-        // If on mobile, try to open the app
-        if (isMobile) {
-            // Create the deep link URL
-            var deepLink = 'https://qnduba.github.io/recosystem-deeplink/product-' + 
-                            (productId || '') + '?id=' + (productId || '') + 
-                            '&user=' + (username || '');
+        // This will handle all URLs, regardless of path
+        function handleDeepLink() {
+            // Extract the URL parameters
+            var urlParams = new URLSearchParams(window.location.search);
+            var productId = urlParams.get('id');
+            var username = urlParams.get('user');
             
-            // Try to open the app
-            window.location.href = deepLink;
+            // If no product ID in query params, try to extract from path
+            if (!productId && window.location.pathname.includes('product-')) {
+                var pathMatch = window.location.pathname.match(/product-([^\/\?]+)/);
+                if (pathMatch && pathMatch[1]) {
+                    productId = pathMatch[1];
+                }
+            }
             
-            // After a delay, redirect to app store if app not installed
-            setTimeout(function() {
-                // Redirect to Play Store (you'll need to replace with your app ID)
-                window.location.href = 'https://download-reco-system.glitch.me';
-            }, 2000);
-        } else {
-            // On desktop, just show a download page
-            document.write('<div style="text-align:center; padding:50px;">'+
-                          '<h1>RECO-System</h1>'+
-                          '<p>Please download our app to view this product.</p>'+
-                          '<a href="https://download-reco-system.glitch.me">Download Now</a>'+
-                          '</div>');
+            // Check if this is a mobile device
+            var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            
+            // If on mobile, try to open the app
+            if (isMobile) {
+                // Create the deep link URL with the original path and query
+                var deepLink = window.location.href;
+                
+                // Try to open the app
+                window.location.href = deepLink;
+                
+                // After a delay, redirect to app store if app not installed
+                setTimeout(function() {
+                    // Redirect to your download page
+                    window.location.href = 'https://download-reco-system.glitch.me';
+                }, 2000);
+            } else {
+                // Show download info for desktop users
+                document.getElementById('app-info').style.display = 'block';
+            }
         }
+        
+        // Run when page loads
+        window.onload = handleDeepLink;
     </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-color: #f7f7f7;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #4CAF50;
+        }
+        .download-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            display: inline-block;
+            border-radius: 25px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-    <!-- Fallback content if JavaScript is disabled -->
-    <div style="text-align:center; padding:50px;">
+    <div class="container">
         <h1>RECO-System</h1>
-        <p>Please download our app to view this product.</p>
-        <a href="https://download-reco-system.glitch.me">Download Now</a>
+        <div id="app-info" style="display:none">
+            <p>This link was meant to be opened in the RECO-System app.</p>
+            <p>Please download our app to view this product.</p>
+            <a href="https://download-reco-system.glitch.me" class="download-btn">Download Now</a>
+        </div>
+        <div id="loading">
+            <p>Redirecting to RECO-System...</p>
+        </div>
     </div>
 </body>
 </html>
