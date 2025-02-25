@@ -4,7 +4,6 @@
     <title>RECO-System - Download App</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script type="text/javascript">
-        // This will handle all URLs, regardless of path
         function handleDeepLink() {
             // Extract the URL parameters
             var urlParams = new URLSearchParams(window.location.search);
@@ -22,22 +21,47 @@
             // Check if this is a mobile device
             var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
             
-            // If on mobile, try to open the app
             if (isMobile) {
-                // Create the deep link URL with the original path and query
-                var deepLink = window.location.href;
+                // Create proper deep link URLs for different platforms
+                var androidDeepLink = "recosystem://product/" + productId + "?user=" + username;
+                var iosDeepLink = "recosystem://product/" + productId + "?user=" + username;
+                var universalLink = window.location.href; // Fallback for Universal Links
                 
-                // Try to open the app
-                window.location.href = deepLink;
+                // Try to determine platform
+                var isAndroid = /Android/i.test(navigator.userAgent);
+                var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
                 
-                // After a delay, redirect to app store if app not installed
-                setTimeout(function() {
-                    // Redirect to your download page
+                // Set a timeout to redirect to app store if app isn't installed
+                var appStoreTimeout;
+                appStoreTimeout = setTimeout(function() {
                     window.location.href = 'https://download-reco-system.glitch.me';
                 }, 2000);
+                
+                // Try to open the app with platform-specific deep link
+                if (isAndroid) {
+                    tryDeepLink(androidDeepLink);
+                } else if (isIOS) {
+                    tryDeepLink(iosDeepLink);
+                } else {
+                    // For other mobile devices, try a generic approach
+                    tryDeepLink(androidDeepLink); 
+                }
+                
+                function tryDeepLink(deepLink) {
+                    // Create an iframe to try opening the app (more reliable than location.href)
+                    var iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.src = deepLink;
+                    document.body.appendChild(iframe);
+                }
+                
+                // Show the loading message
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('app-info').style.display = 'none';
             } else {
                 // Show download info for desktop users
                 document.getElementById('app-info').style.display = 'block';
+                document.getElementById('loading').style.display = 'none';
             }
         }
         
