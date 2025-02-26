@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>RECO System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script type="text/javascript">
+    // Function to parse URL parameters
+    function getParameterByName(name, url) {
+      if (!url) url = window.location.href;
+      name = name.replace(/[\[\]]/g, '\\$&');
+      var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+          results = regex.exec(url);
+      if (!results) return null;
+      if (!results[2]) return '';
+      return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
+    
+    // Extract product ID from URL path or query parameters
+    function extractProductId() {
+      const path = window.location.pathname;
+      const pathParts = path.split('/');
+      
+      // Check if the path contains product-{id}
+      for (let i = 0; i < pathParts.length; i++) {
+        if (pathParts[i].startsWith('product-')) {
+          return pathParts[i].substring('product-'.length);
+        }
+      }
+      
+      // If not in path, check query parameters for both 'id' and 'product'
+      const idParam = getParameterByName('id');
+      const productParam = getParameterByName('product');
+      
+      return idParam || productParam || null;
+    }
+    
+    // Redirect to app using custom URL scheme
+    window.onload = function() {
+      const productId = extractProductId();
+      const username = getParameterByName('user');
+      
+      console.log("Product ID: ", productId);
+      console.log("Username: ", username);
+      
+      if (productId) {
+        // Try to open the app with custom URL scheme
+        const appUrl = `recosystem://product/${productId}?user=${username || ''}`;
+        
+        // Attempt to open app
+        window.location.href = appUrl;
+        
+        // Fallback to app store after a delay (for users who don't have the app installed)
+        setTimeout(function() {
+          // You can redirect to Play Store or App Store based on platform detection
+          // This is a simplified example
+          const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+          if (/android/i.test(userAgent)) {
+            window.location.href = "https://play.google.com/store/apps/details?id=your.app.package";
+          } else if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+            window.location.href = "https://apps.apple.com/app/your-app-id";
+          }
+        }, 2000);
+      } else {
+        // Just go to the main page or app store
+        console.log("No product ID found");
+      }
+    };
+  </script>
+</head>
+<body>
+  <div style="text-align: center; padding: 40px; font-family: Arial, sans-serif;">
+    <h1>Redirecting to RECO System app...</h1>
+    <p>If you're not redirected automatically, please download the app from your app store.</p>
+  </div>
+</body>
+</html>
